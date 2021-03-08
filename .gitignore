@@ -1,0 +1,4 @@
+env/*
+scraper/env/*
+.idea
+api/env/*

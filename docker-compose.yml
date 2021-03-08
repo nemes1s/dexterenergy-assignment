@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  scraper:
+    build: ./scraper/
+  #   depends_on:
+  #     - db
+  #   links:
+  #     - db
+  # api:
+  #   build: ./api/
+  #   depends_on:
+  #     - db
+  #   links:
+  #     - db
+  # # fe:
+  # #   build: ./fe/
+  # db:
+  #   build: ./database/
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   restart: unless-stopped
+
+volumes:
+  postgres-data:
