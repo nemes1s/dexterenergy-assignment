@@ -35,11 +35,13 @@ def get_start_end():
         with open(filename_to_store_end_date, 'r') as file1:
             lasttimestamp = int(file1.readline())
             file1.close()
-            start = pd.Timestamp(lasttimestamp, tz=tz) + pd.Timedelta("00:00:01")
+            start = pd.Timestamp(lasttimestamp, tz=tz) + pd.Timedelta(seconds=1)
     else:
-        start = pd.Timestamp(date.today(), tz=tz) - pd.Timedelta("24:00:00")
+        start = pd.Timestamp(date.today(), tz=tz) - pd.Timedelta(days=1, seconds=1)
 
-    end = start + pd.Timedelta("24:00:00")
+    end = start + pd.Timedelta(days=10)
+    if end > pd.Timestamp(date.today(), tz=tz):
+        end = pd.Timestamp(date.today()) + pd.Timedelta("23:59:59")
     return start, end
 
 
@@ -53,10 +55,6 @@ def write_end(end):
 def main():
     client = EntsoePandasClient(api_key=api_key)
     (start, end) = get_start_end()
-
-    if end > pd.Timestamp(date.today(), tz=tz) + pd.Timedelta('24:00:00'):
-        print("Nothing to add, date is greater than today")
-        return
 
     response = client.query_crossborder_flows(country_code_from, country_code_to, start=start, end=end)
     response_revert_country_flow = client.query_crossborder_flows(country_code_to, country_code_from, start=start
