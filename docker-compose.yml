@@ -12,6 +12,8 @@ services:
       - db
     links:
       - db
+    ports:
+      - "8081:8081"
   # fe:
   #   build: ./fe/
   db:

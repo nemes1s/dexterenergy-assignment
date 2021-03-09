@@ -2,5 +2,5 @@
 while true
 do
  python /code/main.py
- sleep 5
+ sleep 10
 done

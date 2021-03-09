@@ -5,7 +5,6 @@ Module Docstring
 from datetime import date
 
 from entsoe import EntsoePandasClient
-from os import path
 import pandas as pd
 from sqlalchemy import create_engine
 
@@ -18,6 +17,7 @@ db_user = 'username'
 db_pass = 'secret'
 db_host = 'db'
 db_port = '5432'
+db_table = 'nl_de_flow'
 api_key = '9e7b7f2f-1ac7-43a8-8d94-3e4ae89f0921'
 
 # Connect to to the database
@@ -31,25 +31,19 @@ tz = 'Europe/Amsterdam'
 
 
 def get_start_end():
-    if path.exists(filename_to_store_end_date):
-        with open(filename_to_store_end_date, 'r') as file1:
-            lasttimestamp = int(file1.readline())
-            file1.close()
-            start = pd.Timestamp(lasttimestamp, tz=tz) + pd.Timedelta(seconds=1)
+    result_set = db.execute('SELECT index from {} ORDER BY index DESC LIMIT 1'.format(db_table))
+    result = [r[0] for r in result_set]
+    if len(result):
+        print(result[0])
+        start = pd.Timestamp(result[0]).tz_convert(tz) + pd.Timedelta(seconds=1)
     else:
-        start = pd.Timestamp(date.today(), tz=tz) - pd.Timedelta(days=1, seconds=1)
+        start = pd.Timestamp(date.today(), tz=tz) - pd.Timedelta(days=365)
 
-    end = start + pd.Timedelta(days=10)
+    end = start + pd.Timedelta(days=60)
+
     if end > pd.Timestamp(date.today(), tz=tz):
-        end = pd.Timestamp(date.today()) + pd.Timedelta("23:59:59")
+        end = pd.Timestamp(date.today(), tz=tz) + pd.Timedelta("23:59:59")
     return start, end
-
-
-def write_end(end):
-    with open(filename_to_store_end_date, "w") as file1:
-        # Writing data to a file
-        file1.write(str(end.value))
-        file1.close()
 
 
 def main():
@@ -62,9 +56,9 @@ def main():
     # normalize
     result = response.to_frame() - response_revert_country_flow.to_frame()
     result.columns = ['value']
-    print(result.to_markdown())
-    # result.to_sql('nl_de_flow', db, if_exists='append')
-    write_end(result.tail(1).index[0])
+    if len(result):
+        print(result.to_markdown())
+        result.to_sql(db_table, db, if_exists='append')
 
 
 if __name__ == "__main__":
