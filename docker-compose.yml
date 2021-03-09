@@ -14,14 +14,14 @@ services:
       - db
     ports:
       - "8081:8081"
-  # fe:
-  #   build: ./fe/
-  #   depends_on:
-  #     - api
-  #   links:
-  #     - api
-  #   ports:
-  #     - "8080:80"
+  fe:
+    build: ./fe/
+    depends_on:
+      - api
+    links:
+      - api
+    ports:
+      - "8080:80"
   db:
     build: ./database/
     ports:

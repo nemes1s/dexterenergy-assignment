@@ -26,18 +26,18 @@ db = create_engine(db_string)
 
 country_code_from = 'NL'
 country_code_to = 'DE'
-filename_to_store_end_date = 'lasttimestamp.txt'
 tz = 'Europe/Amsterdam'
 
 
 def get_start_end():
+    # sorry, never worked with sqlalchemy before
     result_set = db.execute('SELECT index from {} ORDER BY index DESC LIMIT 1'.format(db_table))
     result = [r[0] for r in result_set]
     if len(result):
         print(result[0])
         start = pd.Timestamp(result[0]).tz_convert(tz) + pd.Timedelta(seconds=1)
     else:
-        start = pd.Timestamp(date.today(), tz=tz) - pd.Timedelta(days=365)
+        start = pd.Timestamp(date.today(), tz=tz) - pd.Timedelta(days=365)  # yep this is ugly, i know
 
     end = start + pd.Timedelta(days=60)
 
